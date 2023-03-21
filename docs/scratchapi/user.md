@@ -15,6 +15,7 @@ User
     - [User.api_get_message_count](#userapi_get_message_count)
     - [User.api_get_projects](#userapi_get_projects)
     - [User.api_post_comment](#userapi_post_comment)
+    - [User.api_report](#userapi_report)
     - [User().get_curating_studios](#user()get_curating_studios)
     - [User().get_favorite_projects](#user()get_favorite_projects)
     - [User().get_followers](#user()get_followers)
@@ -22,6 +23,7 @@ User
     - [User().get_message_count](#user()get_message_count)
     - [User().get_projects](#user()get_projects)
     - [User().post_comment](#user()post_comment)
+    - [User().report](#user()report)
 
 ## User
 
@@ -145,6 +147,20 @@ def api_post_comment(session: Session, username: str, content: str):
     ...
 ```
 
+### User.api_report
+
+[Show source in user.py:164](../../scratchapi/user.py#L164)
+
+Report the user for a violation in the given section given by username
+
+#### Signature
+
+```python
+@staticmethod
+def api_report(session: Session, username: str, section: Literal["username"]):
+    ...
+```
+
 ### User().get_curating_studios
 
 [Show source in user.py:70](../../scratchapi/user.py#L70)
@@ -233,5 +249,18 @@ Post a comment on user's profile
 
 ```python
 def post_comment(self, content: str):
+    ...
+```
+
+### User().report
+
+[Show source in user.py:174](../../scratchapi/user.py#L174)
+
+Report the user for a violation in the given section
+
+#### Signature
+
+```python
+def report(self, section: Literal["username"]):
     ...
 ```

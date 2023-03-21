@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from .exceptions import *
 from .lib import print  # type: ignore
@@ -24,14 +24,18 @@ class User:
         self.status: str = data["profile"]["status"]
         self.bio: str = data["profile"]["bio"]
         self.country: str = data["profile"]["country"]
-
-    def __repr__(self):
-        return (
-            f"[User]\n"
-            f"  username:        {self.username!r}\n"
-            f"  is_scratch_team: {self.is_scratch_team!r}\n"
-            f"  joined:          {self.joined!r}"
+        self.avatar: str = data["profile"]["images"]["90x90"].replace(
+            "90x90", "500x500"
         )
+
+    def __rich_repr__(self):
+        yield "id", self.id
+        yield "username", self.username
+        yield "is_scratch_team", self.is_scratch_team
+        yield "joined", self.joined
+        yield "status", self.status
+        yield "bio", self.bio
+        yield "country", self.country
 
     @staticmethod
     def api_get_projects(
@@ -160,3 +164,25 @@ class User:
     def post_comment(self, content: str):
         """Post a comment on user's profile"""
         User.api_post_comment(self.session, self.username, content)
+
+    @staticmethod
+    def api_report(
+        session: Session, username: str, section: Literal["username"]
+    ):  # FIXME: add other sections
+        """Report the user for a violation in the given section given by username"""
+        response = session.post(
+            f"{SITEAPI}/users/all/{username}/report", data={"selected_field": section}
+        )
+        response.raise_for_status()
+
+    def report(self, section: Literal["username"]):  # FIXME: see User.api_report()
+        """Report the user for a violation in the given section"""
+        User.api_report(self.session, self.username, section)
+
+    def follow(self):
+        """Follow the user."""
+        self.session.follow_user(self.username)
+
+    def unfollow(self):
+        """Unfollow the user."""
+        self.session.unfollow_user(self.username)

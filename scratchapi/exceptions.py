@@ -1,3 +1,7 @@
+class NotFoundError(Exception):
+    ...
+
+
 class InvalidCredentialsError(Exception):
     ...
 
