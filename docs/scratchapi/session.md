@@ -8,14 +8,14 @@ Session
 
 - [Session](#session)
   - [Session](#session-1)
+    - [Session().get_list](#session()get_list)
     - [Session().get_user](#session()get_user)
     - [Session().login](#session()login)
     - [Session().logout](#session()logout)
-    - [Session().user_post_comment](#session()user_post_comment)
 
 ## Session
 
-[Show source in session.py:11](../../scratchapi/session.py#L11)
+[Show source in session.py:15](../../scratchapi/session.py#L15)
 
 #### Signature
 
@@ -25,9 +25,32 @@ class Session(requests.Session):
         ...
 ```
 
+### Session().get_list
+
+[Show source in session.py:44](../../scratchapi/session.py#L44)
+
+Wrap GET endpoints that take in a limit and offset and return a list of objects
+
+#### Signature
+
+```python
+def get_list(
+    self,
+    endpoint: str,
+    limit: int | None,
+    offset: int | None,
+    middleware: Callable[[Any], T],
+) -> list[T]:
+    ...
+```
+
+#### See also
+
+- [T](#t)
+
 ### Session().get_user
 
-[Show source in session.py:65](../../scratchapi/session.py#L65)
+[Show source in session.py:87](../../scratchapi/session.py#L87)
 
 Get a user object from username
 
@@ -40,7 +63,7 @@ def get_user(self, username: str):
 
 ### Session().login
 
-[Show source in session.py:40](../../scratchapi/session.py#L40)
+[Show source in session.py:62](../../scratchapi/session.py#L62)
 
 Log in to the Scratch API
 
@@ -53,7 +76,7 @@ def login(self, password: str):
 
 ### Session().logout
 
-[Show source in session.py:58](../../scratchapi/session.py#L58)
+[Show source in session.py:80](../../scratchapi/session.py#L80)
 
 Log out of the Scratch API
 
@@ -61,18 +84,5 @@ Log out of the Scratch API
 
 ```python
 def logout(self):
-    ...
-```
-
-### Session().user_post_comment
-
-[Show source in session.py:71](../../scratchapi/session.py#L71)
-
-Post a comment on user's profile
-
-#### Signature
-
-```python
-def user_post_comment(self, username: str, content: str):
     ...
 ```

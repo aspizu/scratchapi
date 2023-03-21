@@ -4,3 +4,6 @@
 ## Documentation
 
 View the API documentation [here](docs/README.md), generated using [Handsdown](https://github.com/vemel/handsdown).
+
+<!-- CLOC_START -->
+<!-- CLOC_END -->
