@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import requests
 
-from .exceptions import InvalidCredentialsError
+from .exceptions import *
 from .lib import print  # type: ignore
-from .lib import API, HOST, USER_AGENT
+from .lib import API, HOST, SITEAPI, USER_AGENT
 from .user import User
 
 
@@ -67,3 +67,16 @@ class Session(requests.Session):
         response = self.get(f"{API}/users/{username}/")
         response.raise_for_status()
         return User(response.json(), self)
+
+    def user_post_comment(self, username: str, content: str):
+        """Post a comment on user's profile"""
+        response = self.post(
+            f"{SITEAPI}/comments/user/{username}/add/",
+            json={"content": content, "parent_id": "", "commentee_id": ""},
+        )
+        response.raise_for_status()
+        if (
+            response.text.strip()
+            == '<script id="error-data" type="application/json">{"error": "isDisallowed"}</script>'
+        ):
+            raise CommentsDisabledError

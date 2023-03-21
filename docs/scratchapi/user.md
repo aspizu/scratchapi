@@ -113,6 +113,6 @@ def get_projects(self, limit: int = 20, offset: int = 0):
 #### Signature
 
 ```python
-def post_comment(self, content: str, parent_id: str = "", commentee_id: str = ""):
+def post_comment(self, content: str):
     ...
 ```

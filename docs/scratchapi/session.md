@@ -11,6 +11,7 @@ Session
     - [Session().get_user](#session()get_user)
     - [Session().login](#session()login)
     - [Session().logout](#session()logout)
+    - [Session().user_post_comment](#session()user_post_comment)
 
 ## Session
 
@@ -60,5 +61,18 @@ Log out of the Scratch API
 
 ```python
 def logout(self):
+    ...
+```
+
+### Session().user_post_comment
+
+[Show source in session.py:71](../../scratchapi/session.py#L71)
+
+Post a comment on user's profile
+
+#### Signature
+
+```python
+def user_post_comment(self, username: str, content: str):
     ...
 ```

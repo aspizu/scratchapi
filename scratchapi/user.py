@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
-from .exceptions import CommentsDisabledError
+from .exceptions import *
 from .lib import print  # type: ignore
-from .lib import API, SITEAPI, timestamp_to_datetime
+from .lib import API, timestamp_to_datetime
 from .project import Project
 from .studio import Studio
 
@@ -97,18 +97,5 @@ class User:
         response.raise_for_status()
         return response.json()["count"]
 
-    def post_comment(self, content: str, parent_id: str = "", commentee_id: str = ""):
-        response = self.session.post(
-            f"{SITEAPI}/comments/user/{self.username}/add/",
-            json={
-                "content": content,
-                "parent_id": parent_id,
-                "commentee_id": commentee_id,
-            },
-        )
-        response.raise_for_status()
-        if (
-            response.text.strip()
-            == '<script id="error-data" type="application/json">{"error": "isDisallowed"}</script>'
-        ):
-            raise CommentsDisabledError
+    def post_comment(self, content: str):
+        self.session.user_post_comment(self.username, content)
