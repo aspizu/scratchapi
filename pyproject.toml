@@ -1,3 +1,4 @@
 [tool.pyright]
 typeCheckingMode = "strict"
 reportImportCycles = false
+reportIncompatibleMethodOverride = false

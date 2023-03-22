@@ -7,7 +7,9 @@ import requests
 from .exceptions import *
 from .lib import print  # type: ignore
 from .lib import API, HOST, SITEAPI, USER_AGENT
+from .news import News
 from .project import Project
+from .studio import Studio
 from .user import User
 
 T = TypeVar("T")
@@ -47,12 +49,19 @@ class Session(requests.Session):
             }
         )
         self.username = username
+        """Current user's username."""
         self.login(password)
         del password
         self.user = self.get_user(self.username)
+        """
+        User object for the current user.
+        Use this instead of `self.get_user(self.username)`
+        """
 
     def __rich_repr__(self):
-        yield None, self.user
+        yield "None", self.user
+
+    __rich_repr__.angular = True  # type: ignore
 
     def get_list(
         self,
@@ -72,9 +81,7 @@ class Session(requests.Session):
         """
         limit = limit or 20
         offset = offset or 0
-        response = self.get(
-            f"{API}/{endpoint}", params={"limit": limit, "offset": offset}
-        )
+        response = self.get(endpoint, params={"limit": limit, "offset": offset})
         response.raise_for_status()
         return [middleware(each) for each in response.json()]
 
@@ -173,6 +180,24 @@ class Session(requests.Session):
         response.raise_for_status()
         return Project(response.json(), self)
 
+    def get_studio(self, id: int):
+        """
+        Get a studio object from id.
+
+        Raises:
+            NotFoundError: If the project is not found.
+        """
+        response = self.get(f"{API}/studios/{id}/")
+        if response.status_code == 404:
+            raise NotFoundError(id)
+        response.raise_for_status()
+        return Studio(response.json(), self)
+
+    def get_news(self, limit: int | None = None, offset: int | None = None):
+        return self.get_list(
+            f"{API}/news/", limit, offset, lambda item: News(item, self)
+        )
+
     def edit_profile(
         self,
         bio: str | None = None,
@@ -223,10 +248,9 @@ class Session(requests.Session):
         response = self.put(f"{SITEAPI}/users/all/{self.username}/", json=payload)
         response.raise_for_status()
 
-    def upload_avatar(self, image: BinaryIO):
+    def upload_avatar(self, image: BinaryIO):  # FIXME: This does not work
         response = self.post(
             f"{SITEAPI}/users/all/{self.username}/",
             files={"file": ("avatar.png", image, "image/png")},
         )
-        print(response.text)
         response.raise_for_status()

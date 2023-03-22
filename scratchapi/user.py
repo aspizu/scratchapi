@@ -2,18 +2,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal
 
+from . import project
 from .exceptions import *
 from .lib import print  # type: ignore
 from .lib import API, SITEAPI, timestamp_to_datetime
-from .project import Project
 from .studio import Studio
 
 if TYPE_CHECKING:
     from .session import Session
 
 
-class User:
-    """User"""
+class BaseUser:
+    """User object as returned by most API endpoints."""
 
     def __init__(self, data: Any, session: Session):
         self.session = session
@@ -21,21 +21,23 @@ class User:
         self.username: str = data["username"]
         self.is_scratch_team: bool = data["scratchteam"]
         self.joined = timestamp_to_datetime(data["history"]["joined"])
-        self.status: str = data["profile"]["status"]
-        self.bio: str = data["profile"]["bio"]
-        self.country: str = data["profile"]["country"]
         self.avatar: str = data["profile"]["images"]["90x90"].replace(
             "90x90", "500x500"
         )
+        """The URL to the user's avatar."""
 
     def __rich_repr__(self):
         yield "id", self.id
         yield "username", self.username
-        yield "is_scratch_team", self.is_scratch_team
+        yield "is_scratch_team", self.is_scratch_team, False
         yield "joined", self.joined
-        yield "status", self.status
-        yield "bio", self.bio
-        yield "country", self.country
+        yield "avatar", self.avatar, None
+
+    __rich_repr__.angular = True  # type: ignore
+
+    def promote(self) -> User:
+        """Promote this BaseUser to a User object."""
+        return self.session.get_user(self.username)
 
     @staticmethod
     def api_get_projects(
@@ -44,16 +46,16 @@ class User:
         limit: int | None = None,
         offset: int | None = None,
     ):
-        """Returns a list of projects shared by the user given by username"""
+        """Returns a list of projects shared by the user given by username."""
         return session.get_list(
-            f"users/{username}/projects",
+            f"{API}/users/{username}/projects",
             limit,
             offset,
-            lambda item: Project(item, session),
+            lambda item: project.Project(item, session),
         )
 
     def get_projects(self, limit: int | None = None, offset: int | None = None):
-        """Returns a list of projects shared by the user"""
+        """Returns a list of projects shared by the user."""
         return User.api_get_projects(self.session, self.username, limit, offset)
 
     @staticmethod
@@ -63,16 +65,16 @@ class User:
         limit: int | None = None,
         offset: int | None = None,
     ):
-        """Returns a list of studios curated by the user given by username"""
+        """Returns a list of studios curated by the user given by username."""
         return session.get_list(
-            f"users/{username}/studios/curate",
+            f"{API}/users/{username}/studios/curate",
             limit,
             offset,
             lambda item: Studio(item, session),
         )
 
     def get_curating_studios(self, limit: int | None = None, offset: int | None = None):
-        """Return a list of studios curated by the user"""
+        """Return a list of studios curated by the user."""
         return User.api_get_curating_studios(self.session, self.username, limit, offset)
 
     @staticmethod
@@ -82,18 +84,18 @@ class User:
         limit: int | None = None,
         offset: int | None = None,
     ):
-        """Returns a list of projects favorited by the user"""
+        """Returns a list of projects favorited by the user given by username."""
         return session.get_list(
-            f"users/{username}/favorites",
+            f"{API}/users/{username}/favorites",
             limit,
             offset,
-            lambda item: Project(item, session),
+            lambda item: project.Project(item, session),
         )
 
     def get_favorite_projects(
         self, limit: int | None = None, offset: int | None = None
     ):
-        """Returns a list of projects favorited by the user"""
+        """Returns a list of projects favorited by the user."""
         return User.api_get_favorite_projects(
             self.session, self.username, limit, offset
         )
@@ -105,16 +107,16 @@ class User:
         limit: int | None = None,
         offset: int | None = None,
     ):
-        """Returns a list of users following the user given by username"""
+        """Returns a list of users following the user given by username."""
         return session.get_list(
-            f"users/{username}/followers",
+            f"{API}/users/{username}/followers",
             limit,
             offset,
             lambda item: User(item, session),
         )
 
     def get_followers(self, limit: int | None = None, offset: int | None = None):
-        """Return a list of users following the user"""
+        """Return a list of users following the user."""
         return User.api_get_followers(self.session, self.username, limit, offset)
 
     @staticmethod
@@ -124,32 +126,32 @@ class User:
         limit: int | None = None,
         offset: int | None = None,
     ):
-        """Returns a list of users that the user given by username is following"""
+        """Returns a list of users that the user given by username is following."""
         return session.get_list(
-            f"users/{username}/following",
+            f"{API}/users/{username}/following",
             limit,
             offset,
             lambda item: User(item, session),
         )
 
     def get_following(self, limit: int | None = None, offset: int | None = None):
-        """Return a list of users that the user is following"""
+        """Return a list of users that the user is following."""
         return User.api_get_following(self.session, self.username, limit, offset)
 
     @staticmethod
     def api_get_message_count(session: Session, username: str) -> int:
-        """Returns the number of messages in the user's inbox"""
+        """Returns the number of messages in the user's inbox given by username."""
         response = session.get(f"{API}/users/{username}/messages/count")
         response.raise_for_status()
         return response.json()["count"]
 
     def get_message_count(self) -> int:
-        """Returns the number of messages in the user's inbox"""
+        """Returns the number of messages in the user's inbox."""
         return User.api_get_message_count(self.session, self.username)
 
     @staticmethod
     def api_post_comment(session: Session, username: str, content: str):
-        """Post a comment on user's profile given by username"""
+        """Post a comment on user's profile given by username."""
         response = session.post(
             f"{SITEAPI}/comments/user/{username}/add/",
             json={"content": content, "parent_id": "", "commentee_id": ""},
@@ -186,3 +188,21 @@ class User:
     def unfollow(self):
         """Unfollow the user."""
         self.session.unfollow_user(self.username)
+
+
+class User(BaseUser):
+    """User object as returned by the get_user API endpoint."""
+
+    def __init__(self, data: Any, session: Session):
+        super().__init__(data, session)
+        self.status: str = data["profile"]["status"]
+        self.bio: str = data["profile"]["bio"]
+        self.country: str = data["profile"]["country"]
+
+    def __rich_repr__(self):
+        yield from super().__rich_repr__()
+        yield "status", self.status, None
+        yield "bio", self.bio, None
+        yield "country", self.country, None
+
+    __rich_repr__.angular = True  # type: ignore
