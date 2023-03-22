@@ -12,6 +12,7 @@ Scratchapi
 
 - [Exceptions](./exceptions.md)
 - [Lib](./lib.md)
+- [Message](./message.md)
 - [News](./news.md)
 - [Project](./project.md)
 - [Session](./session.md)

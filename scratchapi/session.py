@@ -7,6 +7,7 @@ import requests
 from .exceptions import *
 from .lib import print  # type: ignore
 from .lib import API, HOST, SITEAPI, USER_AGENT
+from .message import Message
 from .news import News
 from .project import Project
 from .studio import Studio
@@ -194,8 +195,18 @@ class Session(requests.Session):
         return Studio(response.json(), self)
 
     def get_news(self, limit: int | None = None, offset: int | None = None):
+        """Returns a list of news."""
         return self.get_list(
             f"{API}/news/", limit, offset, lambda item: News(item, self)
+        )
+
+    def get_messages(self, limit: int | None = None, offset: int | None = None):
+        """Returns a list of messages in the current user's inbox."""
+        return self.get_list(
+            f"{API}/users/{self.username}/messages/",
+            limit,
+            offset,
+            lambda item: Message.new(item, self),
         )
 
     def edit_profile(
@@ -249,8 +260,19 @@ class Session(requests.Session):
         response.raise_for_status()
 
     def upload_avatar(self, image: BinaryIO):  # FIXME: This does not work
+        """Broken"""
         response = self.post(
             f"{SITEAPI}/users/all/{self.username}/",
             files={"file": ("avatar.png", image, "image/png")},
         )
         response.raise_for_status()
+
+    def username_exists(self, username: str) -> bool:
+        """Returns true if an account with the given username exists."""
+        response = self.get(f"{HOST}/accounts/check_username/{username}/")
+        response.raise_for_status()
+        return response.json()[0]["msg"] == "username exists"
+
+    def username_available(self, username: str) -> bool:
+        """Returns true if this username can be used to register a new account."""
+        return not self.username_exists(username)

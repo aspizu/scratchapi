@@ -11,6 +11,7 @@ Session
     - [Session().edit_profile](#session()edit_profile)
     - [Session().follow_user](#session()follow_user)
     - [Session().get_list](#session()get_list)
+    - [Session().get_messages](#session()get_messages)
     - [Session().get_news](#session()get_news)
     - [Session().get_project](#session()get_project)
     - [Session().get_studio](#session()get_studio)
@@ -20,10 +21,12 @@ Session
     - [Session().toggle_profile_comments](#session()toggle_profile_comments)
     - [Session().unfollow_user](#session()unfollow_user)
     - [Session().upload_avatar](#session()upload_avatar)
+    - [Session().username_available](#session()username_available)
+    - [Session().username_exists](#session()username_exists)
 
 ## Session
 
-[Show source in session.py:18](../../scratchapi/session.py#L18)
+[Show source in session.py:19](../../scratchapi/session.py#L19)
 
 A session object for logging in to Scratch and accessing API endpoints for the
 current user.
@@ -38,7 +41,7 @@ class Session(requests.Session):
 
 ### Session().edit_profile
 
-[Show source in session.py:201](../../scratchapi/session.py#L201)
+[Show source in session.py:212](../../scratchapi/session.py#L212)
 
 Edit the user's profile by updating given parameters.
 
@@ -74,7 +77,7 @@ def edit_profile(
 
 ### Session().follow_user
 
-[Show source in session.py:139](../../scratchapi/session.py#L139)
+[Show source in session.py:140](../../scratchapi/session.py#L140)
 
 Follow a user.
 
@@ -91,7 +94,7 @@ def follow_user(self, username: str):
 
 ### Session().get_list
 
-[Show source in session.py:66](../../scratchapi/session.py#L66)
+[Show source in session.py:67](../../scratchapi/session.py#L67)
 
 Fetch a list of data from the API.
 
@@ -119,9 +122,24 @@ def get_list(
 
 - [T](#t)
 
+### Session().get_messages
+
+[Show source in session.py:203](../../scratchapi/session.py#L203)
+
+Returns a list of messages in the current user's inbox.
+
+#### Signature
+
+```python
+def get_messages(self, limit: int | None = None, offset: int | None = None):
+    ...
+```
+
 ### Session().get_news
 
-[Show source in session.py:196](../../scratchapi/session.py#L196)
+[Show source in session.py:197](../../scratchapi/session.py#L197)
+
+Returns a list of news.
 
 #### Signature
 
@@ -132,7 +150,7 @@ def get_news(self, limit: int | None = None, offset: int | None = None):
 
 ### Session().get_project
 
-[Show source in session.py:170](../../scratchapi/session.py#L170)
+[Show source in session.py:171](../../scratchapi/session.py#L171)
 
 Get a project object from id.
 
@@ -149,7 +167,7 @@ def get_project(self, id: int):
 
 ### Session().get_studio
 
-[Show source in session.py:183](../../scratchapi/session.py#L183)
+[Show source in session.py:184](../../scratchapi/session.py#L184)
 
 Get a studio object from id.
 
@@ -166,7 +184,7 @@ def get_studio(self, id: int):
 
 ### Session().get_user
 
-[Show source in session.py:118](../../scratchapi/session.py#L118)
+[Show source in session.py:119](../../scratchapi/session.py#L119)
 
 Get a user object from username.
 
@@ -183,7 +201,7 @@ def get_user(self, username: str):
 
 ### Session().login
 
-[Show source in session.py:88](../../scratchapi/session.py#L88)
+[Show source in session.py:89](../../scratchapi/session.py#L89)
 
 Log in to the Scratch API.
 
@@ -200,7 +218,7 @@ def login(self, password: str):
 
 ### Session().logout
 
-[Show source in session.py:111](../../scratchapi/session.py#L111)
+[Show source in session.py:112](../../scratchapi/session.py#L112)
 
 Log out of the Scratch API.
 
@@ -213,7 +231,7 @@ def logout(self):
 
 ### Session().toggle_profile_comments
 
-[Show source in session.py:131](../../scratchapi/session.py#L131)
+[Show source in session.py:132](../../scratchapi/session.py#L132)
 
 Toggle comments for the user's profile.
 
@@ -226,7 +244,7 @@ def toggle_profile_comments(self):
 
 ### Session().unfollow_user
 
-[Show source in session.py:154](../../scratchapi/session.py#L154)
+[Show source in session.py:155](../../scratchapi/session.py#L155)
 
 Unfollow a user.
 
@@ -243,11 +261,39 @@ def unfollow_user(self, username: str):
 
 ### Session().upload_avatar
 
-[Show source in session.py:251](../../scratchapi/session.py#L251)
+[Show source in session.py:262](../../scratchapi/session.py#L262)
+
+Broken
 
 #### Signature
 
 ```python
 def upload_avatar(self, image: BinaryIO):
+    ...
+```
+
+### Session().username_available
+
+[Show source in session.py:276](../../scratchapi/session.py#L276)
+
+Returns true if this username can be used to register a new account.
+
+#### Signature
+
+```python
+def username_available(self, username: str) -> bool:
+    ...
+```
+
+### Session().username_exists
+
+[Show source in session.py:270](../../scratchapi/session.py#L270)
+
+Returns true if an account with the given username exists.
+
+#### Signature
+
+```python
+def username_exists(self, username: str) -> bool:
     ...
 ```
